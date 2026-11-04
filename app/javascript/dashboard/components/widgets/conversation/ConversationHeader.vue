@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { useStore } from 'vuex';
-import { useElementSize } from '@vueuse/core';
+import { useDebounceFn, useElementSize } from '@vueuse/core';
 import BackButton from '../BackButton.vue';
 import MoreActions from './MoreActions.vue';
 import Avatar from 'next/avatar/Avatar.vue';
@@ -44,12 +44,20 @@ const { t } = useI18n();
 const store = useStore();
 const conversationHeader = ref(null);
 const { width } = useElementSize(conversationHeader);
+const layoutWidth = ref(0);
+const settleLayoutWidth = useDebounceFn(value => {
+  layoutWidth.value = value;
+}, 100);
+watch(width, value => {
+  if (layoutWidth.value) settleLayoutWidth(value);
+  else layoutWidth.value = value;
+});
 
 const SINGLE_ROW_MIN_WIDTH = 840;
 const FULL_LABELS_MIN_WIDTH = 520;
-const isSingleRow = computed(() => width.value >= SINGLE_ROW_MIN_WIDTH);
+const isSingleRow = computed(() => layoutWidth.value >= SINGLE_ROW_MIN_WIDTH);
 const isCompact = computed(
-  () => width.value > 0 && width.value < FULL_LABELS_MIN_WIDTH
+  () => layoutWidth.value > 0 && layoutWidth.value < FULL_LABELS_MIN_WIDTH
 );
 const { isAWebWidgetInbox } = useInbox();
 const { uiSettings, updateUISettings } = useUISettings();
@@ -297,7 +305,7 @@ const copyConversationId = async () => {
           v-if="hasSlaPolicyId"
           :chat="chat"
           show-extended-info
-          :parent-width="width"
+          :parent-width="layoutWidth"
           class="hidden md:flex"
         />
         <NextButton

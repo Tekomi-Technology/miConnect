@@ -184,11 +184,8 @@ const closeOnSmallScreen = () => {
     </div>
     <div ref="scrollContainer" class="flex flex-1 min-h-0 overflow-y-auto">
       <Transition
-        mode="out-in"
-        enter-active-class="transition duration-200 ease-out motion-reduce:transition-none"
-        leave-active-class="transition duration-100 ease-in motion-reduce:transition-none"
-        enter-from-class="opacity-0 translate-y-1"
-        leave-to-class="opacity-0"
+        enter-active-class="transition-opacity duration-150 ease-out motion-reduce:transition-none"
+        enter-from-class="opacity-0"
         @before-enter="resetScroll"
       >
         <KeepAlive>

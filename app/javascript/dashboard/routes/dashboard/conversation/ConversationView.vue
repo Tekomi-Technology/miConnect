@@ -111,10 +111,14 @@ export default {
       if (this.isListExpanded) return true;
       return !this.isConversationListCollapsed;
     },
-    showFilterPanel() {
+    showDockedFilterPanel() {
+      return this.showConversationList && this.isFilterPanelDocked;
+    },
+    showOverlayFilterPanel() {
       return (
         this.showConversationList &&
-        (this.isFilterPanelDocked || this.isFilterOverlayOpen)
+        !this.isFilterPanelDocked &&
+        this.isFilterOverlayOpen
       );
     },
     showMessageView() {
@@ -235,11 +239,26 @@ export default {
       v-if="isConversationListCollapsed && !isListExpanded"
       floating
     />
-    <ConversationFilterPanel
-      v-if="showFilterPanel"
-      :folders-id="foldersId"
-      :overlay="!isFilterPanelDocked"
-    />
+    <SidePanelTransition>
+      <div
+        v-if="showDockedFilterPanel"
+        class="flex-shrink-0 w-[252px] min-w-[252px] h-full overflow-hidden"
+      >
+        <ConversationFilterPanel :folders-id="foldersId" />
+      </div>
+    </SidePanelTransition>
+    <Transition
+      enter-active-class="transition-[transform,opacity] duration-200 ease-out motion-reduce:transition-none"
+      leave-active-class="transition-[transform,opacity] duration-200 ease-out motion-reduce:transition-none"
+      enter-from-class="opacity-0 ltr:-translate-x-full rtl:translate-x-full"
+      leave-to-class="opacity-0 ltr:-translate-x-full rtl:translate-x-full"
+    >
+      <ConversationFilterPanel
+        v-if="showOverlayFilterPanel"
+        :folders-id="foldersId"
+        overlay
+      />
+    </Transition>
     <ChatList
       :show-conversation-list="showConversationList"
       :conversation-inbox="inboxId"

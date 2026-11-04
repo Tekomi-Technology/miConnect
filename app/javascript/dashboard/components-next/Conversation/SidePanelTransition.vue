@@ -3,8 +3,9 @@
 // replaces another the two widths always add up to a single panel width and
 // the conversation area beside them stays still.
 const SLIDE_CLASSES =
-  'transition-[width,min-width,opacity] duration-300 ease-in-out motion-reduce:transition-none';
-const COLLAPSED_CLASSES = '!w-0 !min-w-0 opacity-0';
+  'transition-[width,min-width,opacity,transform] duration-200 ease-out motion-reduce:transition-none';
+const COLLAPSED_CLASSES =
+  'opacity-0 ltr:translate-x-full rtl:-translate-x-full xl:!translate-x-0 xl:!w-0 xl:!min-w-0';
 </script>
 
 <template>

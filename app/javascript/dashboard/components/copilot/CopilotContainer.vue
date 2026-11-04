@@ -224,19 +224,24 @@ onMounted(() => {
           @click="closePanel"
         />
       </div>
-      <Copilot
-        v-if="isCopilotTab"
-        :messages="messages"
-        :support-agent="currentUser"
-        :conversation-inbox-type="conversationInboxType"
-        :assistants="assistants"
-        :active-assistant="activeAssistant"
-        :can-suggest-reply="canSuggestReply"
-        class="flex-1 min-h-0"
-        @set-assistant="setAssistant"
-        @send-message="sendMessage"
-      />
-      <ConversationAnalysis v-else :conversation-id="currentChat.id" />
+      <Transition
+        enter-active-class="transition-opacity duration-150 ease-out motion-reduce:transition-none"
+        enter-from-class="opacity-0"
+      >
+        <Copilot
+          v-if="isCopilotTab"
+          :messages="messages"
+          :support-agent="currentUser"
+          :conversation-inbox-type="conversationInboxType"
+          :assistants="assistants"
+          :active-assistant="activeAssistant"
+          :can-suggest-reply="canSuggestReply"
+          class="flex-1 min-h-0"
+          @set-assistant="setAssistant"
+          @send-message="sendMessage"
+        />
+        <ConversationAnalysis v-else :conversation-id="currentChat.id" />
+      </Transition>
     </SidePanelShell>
   </SidePanelTransition>
 </template>
