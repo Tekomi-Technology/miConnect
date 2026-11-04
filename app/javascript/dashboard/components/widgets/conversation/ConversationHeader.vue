@@ -20,8 +20,6 @@ import {
 } from 'dashboard/composables/useConversationSidePanel';
 import { useUISettings } from 'dashboard/composables/useUISettings';
 import { useAiPanel } from 'dashboard/composables/useAiPanel';
-import { useMessageFilter } from 'dashboard/composables/useMessageFilter';
-import { SENDER_KINDS } from 'dashboard/components-next/message/helpers/senderKind';
 import { useKeyboardEvents } from 'dashboard/composables/useKeyboardEvents';
 import { useMapGetter } from 'dashboard/composables/store';
 import { getSenderDisplayName } from 'dashboard/helper/crmDisplayHelper';
@@ -57,18 +55,6 @@ const { isAWebWidgetInbox } = useInbox();
 const { uiSettings, updateUISettings } = useUISettings();
 const { activePanel } = useConversationSidePanel();
 const { isAiAvailable } = useAiPanel();
-const { senderKindFilter } = useMessageFilter();
-
-const messageFilters = computed(() => [
-  { key: 'all', label: t('CONVERSATION.MESSAGE_FILTER.ALL') },
-  {
-    key: SENDER_KINDS.CUSTOMER,
-    label: t('CONVERSATION.MESSAGE_FILTER.CUSTOMER'),
-  },
-  { key: SENDER_KINDS.AI, label: t('CONVERSATION.MESSAGE_FILTER.AI') },
-  { key: SENDER_KINDS.AGENT, label: t('CONVERSATION.MESSAGE_FILTER.AGENT') },
-  { key: SENDER_KINDS.AUTO, label: t('CONVERSATION.MESSAGE_FILTER.AUTO') },
-]);
 
 const currentUser = useMapGetter('getCurrentUser');
 
@@ -203,7 +189,6 @@ watch(
   () => props.chat.id,
   () => {
     activePanel.value = DEFAULT_CONVERSATION_SIDE_PANEL;
-    senderKindFilter.value = 'all';
   }
 );
 
@@ -223,7 +208,7 @@ const copyConversationId = async () => {
 <template>
   <div
     ref="conversationHeader"
-    class="flex flex-col w-full min-w-0 px-4 pt-3 pb-2 bg-white border-b border-n-weak dark:bg-n-solid-2"
+    class="flex flex-col w-full min-w-0 px-4 py-3 bg-white border-b border-n-weak dark:bg-n-solid-2"
   >
     <div
       class="flex items-center justify-between w-full min-w-0 gap-3"
@@ -358,27 +343,6 @@ const copyConversationId = async () => {
         />
         <MoreActions :conversation-id="currentChat.id" />
       </div>
-    </div>
-    <div
-      role="group"
-      :aria-label="t('CONVERSATION.MESSAGE_FILTER.LABEL')"
-      class="flex items-center gap-1 pt-2 mt-2.5 overflow-x-auto border-t border-n-weak"
-    >
-      <button
-        v-for="filter in messageFilters"
-        :key="filter.key"
-        type="button"
-        class="px-2.5 py-1 text-xs rounded-md whitespace-nowrap transition-colors"
-        :class="
-          senderKindFilter === filter.key
-            ? 'font-bold bg-n-teal-2 text-n-teal-11 ring-1 ring-n-weak shadow-sm'
-            : 'font-medium text-n-slate-11 hover:bg-n-alpha-2 hover:text-n-slate-12'
-        "
-        :aria-pressed="senderKindFilter === filter.key"
-        @click="senderKindFilter = filter.key"
-      >
-        {{ filter.label }}
-      </button>
     </div>
   </div>
 </template>

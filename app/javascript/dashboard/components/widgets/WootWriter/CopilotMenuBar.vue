@@ -116,16 +116,39 @@ const menuItems = computed(() => {
 });
 
 const generalMenuItems = computed(() => {
+  const items = [];
   if (props.conversationId && replyMode.value === REPLY_EDITOR_MODES.REPLY) {
-    return [
-      {
-        label: t('INTEGRATION_SETTINGS.OPEN_AI.REPLY_OPTIONS.SUGGESTION'),
-        key: 'reply_suggestion',
-        icon: 'i-fluent-chat-sparkle-16-regular',
-      },
-    ];
+    items.push({
+      label: t('INTEGRATION_SETTINGS.OPEN_AI.REPLY_OPTIONS.SUGGESTION'),
+      key: 'reply_suggestion',
+      icon: 'i-fluent-chat-sparkle-16-regular',
+    });
   }
-  return [];
+
+  if (props.conversationId) {
+    items.push(
+      {
+        label: t('INTEGRATION_SETTINGS.OPEN_AI.REPLY_OPTIONS.SUMMARIZE'),
+        key: 'summarize',
+        icon: 'i-fluent-text-bullet-list-square-sparkle-32-regular',
+      },
+      {
+        label: t(
+          'INTEGRATION_SETTINGS.OPEN_AI.REPLY_OPTIONS.ANALYZE_CONVERSATION'
+        ),
+        key: 'conversation_analysis',
+        icon: 'i-lucide-scan-search',
+      }
+    );
+  }
+
+  items.push({
+    label: t('INTEGRATION_SETTINGS.OPEN_AI.REPLY_OPTIONS.ASK_COPILOT'),
+    key: 'ask_copilot',
+    icon: 'i-woot-tekomi',
+  });
+
+  return items;
 });
 
 const menuRef = useTemplateRef('menuRef');

@@ -488,15 +488,6 @@
       "CLOSE": "Đóng",
       "RECONNECTED": "Đã kết nối lại phiên Zalo"
     },
-    "MESSAGE_FILTER": {
-      "LABEL": "Lọc tin nhắn",
-      "ALL": "Tất cả",
-      "CUSTOMER": "Khách",
-      "AI": "AI",
-      "AGENT": "Nhân viên",
-      "AUTO": "Tự động & khác",
-      "EMPTY": "Không có tin nhắn thuộc loại này."
-    },
     "SENDER_KIND": {
       "AI": "AI",
       "NOTE": "Ghi chú nội bộ · chỉ nhân viên thấy",

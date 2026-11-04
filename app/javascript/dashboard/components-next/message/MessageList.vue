@@ -2,7 +2,6 @@
 import { computed, reactive } from 'vue';
 import Message from './Message.vue';
 import { MESSAGE_TYPES } from './constants.js';
-import { getSenderKind } from './helpers/senderKind';
 import { useCamelCase } from 'dashboard/composables/useTransformKeys';
 import { useMapGetter } from 'dashboard/composables/store.js';
 import MessageApi from 'dashboard/api/inbox/message.js';
@@ -38,10 +37,6 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
-  senderKindFilter: {
-    type: String,
-    default: 'all',
-  },
 });
 
 const emit = defineEmits(['retry']);
@@ -55,14 +50,6 @@ const allMessages = computed(() => {
     ],
   });
 });
-
-const visibleMessages = computed(() =>
-  props.senderKindFilter === 'all'
-    ? allMessages.value
-    : allMessages.value.filter(
-        message => getSenderKind(message) === props.senderKindFilter
-      )
-);
 
 const currentChat = useMapGetter('getSelectedChat');
 
@@ -181,7 +168,7 @@ const getInReplyToMessage = parentMessage => {
 <template>
   <ul class="px-4 bg-n-surface-1">
     <slot name="beforeAll" />
-    <template v-for="(message, index) in visibleMessages" :key="message.id">
+    <template v-for="(message, index) in allMessages" :key="message.id">
       <slot
         v-if="firstUnreadId && message.id === firstUnreadId"
         name="unreadBadge"
@@ -190,9 +177,9 @@ const getInReplyToMessage = parentMessage => {
         v-bind="message"
         :is-email-inbox="isAnEmailChannel"
         :in-reply-to="getInReplyToMessage(message)"
-        :group-with-next="shouldGroupWithNext(index, visibleMessages)"
+        :group-with-next="shouldGroupWithNext(index, allMessages)"
         :group-with-previous="
-          index > 0 && shouldGroupWithNext(index - 1, visibleMessages)
+          index > 0 && shouldGroupWithNext(index - 1, allMessages)
         "
         :inbox-supports-reply-to="inboxSupportsReplyTo"
         :current-user-id="currentUserId"
@@ -200,12 +187,6 @@ const getInReplyToMessage = parentMessage => {
         @retry="emit('retry', message)"
       />
     </template>
-    <li
-      v-if="senderKindFilter !== 'all' && !visibleMessages.length"
-      class="py-10 text-sm text-center list-none text-n-slate-11"
-    >
-      {{ $t('CONVERSATION.MESSAGE_FILTER.EMPTY') }}
-    </li>
     <slot name="after" />
   </ul>
 </template>

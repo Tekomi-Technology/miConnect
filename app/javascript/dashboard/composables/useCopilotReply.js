@@ -1,5 +1,8 @@
 import { ref, computed } from 'vue';
 import { useTekomi } from 'dashboard/composables/useTekomi';
+import { useUISettings } from 'dashboard/composables/useUISettings';
+import { AI_PANEL_TABS, useAiPanel } from 'dashboard/composables/useAiPanel';
+import { useConversationAnalysis } from 'dashboard/composables/useConversationAnalysis';
 import { useTrack } from 'dashboard/composables';
 import { TEKOMI_EVENTS } from 'dashboard/helper/AnalyticsHelper/events';
 import {
@@ -77,6 +80,9 @@ function trackGenerationFailure({
  */
 export function useCopilotReply() {
   const { processEvent, followUp, currentChat } = useTekomi();
+  const { updateUISettings } = useUISettings();
+  const { activeAiTab } = useAiPanel();
+  const { requestAnalysis } = useConversationAnalysis();
 
   const showEditor = ref(false);
   const isGenerating = ref(false);
@@ -152,6 +158,20 @@ export function useCopilotReply() {
    * @param {string} data - The content to process
    */
   async function execute(action, data) {
+    if (action === 'ask_copilot' || action === 'conversation_analysis') {
+      if (action === 'conversation_analysis') {
+        requestAnalysis(conversationId.value);
+        activeAiTab.value = AI_PANEL_TABS.ANALYSIS;
+      } else {
+        activeAiTab.value = AI_PANEL_TABS.COPILOT;
+      }
+      updateUISettings({
+        is_contact_sidebar_open: false,
+        is_copilot_panel_open: true,
+      });
+      return;
+    }
+
     // Reset without tracking dismiss (starting new action)
     reset(false);
     const requestController = new AbortController();

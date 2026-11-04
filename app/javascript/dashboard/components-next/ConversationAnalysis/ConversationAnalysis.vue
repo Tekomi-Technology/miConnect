@@ -18,7 +18,8 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
-const { markAnalyzed } = useConversationAnalysis();
+const { markAnalyzed, requestedConversationId, clearRequest } =
+  useConversationAnalysis();
 
 const currentChat = useMapGetter('getSelectedChat');
 const contactId = computed(() => currentChat.value.meta?.sender?.id);
@@ -122,6 +123,17 @@ const generateCare = () =>
     'CONVERSATION_ANALYSIS.CARE.ERROR'
   );
 
+const handleRequest = () => {
+  if (
+    requestedConversationId.value !== props.conversationId ||
+    isLoading.value
+  ) {
+    return;
+  }
+  clearRequest();
+  if (!analysis.value && !isAnalyzing.value) runAnalysis();
+};
+
 const loadAnalysis = async () => {
   const conversationId = props.conversationId;
   stopPolling();
@@ -141,9 +153,11 @@ const loadAnalysis = async () => {
   } finally {
     isLoading.value = false;
   }
+  handleRequest();
 };
 
 watch(() => props.conversationId, loadAnalysis, { immediate: true });
+watch(requestedConversationId, handleRequest);
 
 onBeforeUnmount(() => {
   isUnmounted = true;

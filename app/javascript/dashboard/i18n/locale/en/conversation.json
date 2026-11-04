@@ -505,15 +505,6 @@
       "CLOSE": "Close",
       "RECONNECTED": "Zalo session reconnected"
     },
-    "MESSAGE_FILTER": {
-      "LABEL": "Filter messages",
-      "ALL": "All",
-      "CUSTOMER": "Customer",
-      "AI": "AI",
-      "AGENT": "Agents",
-      "AUTO": "Automated & other",
-      "EMPTY": "No messages of this type."
-    },
     "SENDER_KIND": {
       "AI": "AI",
       "NOTE": "Internal note · only agents can see this",

@@ -308,6 +308,39 @@ const onInboxMenuAction = ({ value }) => {
   pickInbox(value);
 };
 
+const chipRow = ref(null);
+const chipDrag = { pointerId: null, startX: 0, startScroll: 0, moved: false };
+
+const onChipPointerDown = event => {
+  if (event.pointerType !== 'mouse' || event.button !== 0) return;
+  chipDrag.pointerId = event.pointerId;
+  chipDrag.startX = event.clientX;
+  chipDrag.startScroll = chipRow.value.scrollLeft;
+  chipDrag.moved = false;
+};
+
+const onChipPointerMove = event => {
+  if (chipDrag.pointerId !== event.pointerId) return;
+  const distance = event.clientX - chipDrag.startX;
+  if (!chipDrag.moved && Math.abs(distance) < 5) return;
+  if (!chipDrag.moved) {
+    chipDrag.moved = true;
+    chipRow.value.setPointerCapture(event.pointerId);
+  }
+  chipRow.value.scrollLeft = chipDrag.startScroll - distance;
+};
+
+const onChipPointerUp = () => {
+  chipDrag.pointerId = null;
+};
+
+const onChipClickCapture = event => {
+  if (!chipDrag.moved) return;
+  chipDrag.moved = false;
+  event.stopPropagation();
+  event.preventDefault();
+};
+
 const itemClass = active =>
   active
     ? 'bg-n-teal-3 text-n-teal-11 font-semibold'
@@ -388,7 +421,14 @@ const countClass = (active, isAlert) => {
     </div>
 
     <div
-      class="flex flex-shrink-0 gap-1 px-2.5 pt-2 pb-3 overflow-x-auto border-b no-scrollbar border-n-weak"
+      ref="chipRow"
+      class="flex flex-shrink-0 gap-1 px-2.5 pt-2 pb-3 overflow-x-auto border-b select-none no-scrollbar border-n-weak"
+      @pointerdown="onChipPointerDown"
+      @pointermove="onChipPointerMove"
+      @pointerup="onChipPointerUp"
+      @pointercancel="onChipPointerUp"
+      @click.capture="onChipClickCapture"
+      @dragstart.prevent
     >
       <button
         type="button"
