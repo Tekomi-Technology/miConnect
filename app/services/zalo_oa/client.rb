@@ -1,5 +1,24 @@
 class ZaloOa::Client
-  class Error < StandardError; end
+  # Zalo error codes that retrying cannot fix until the OA owner changes something
+  # (upgrade the OA package, re-authorize the app). Anything else is treated as transient.
+  PERMANENT_ERROR_CODES = {
+    -224 => 'OA tier package does not include this API',
+    -216 => 'access token is invalid',
+    -124 => 'access token is invalid or expired'
+  }.freeze
+
+  class Error < StandardError
+    attr_reader :code
+
+    def initialize(message = nil, code: nil)
+      super(message)
+      @code = code
+    end
+
+    def permanent?
+      PERMANENT_ERROR_CODES.key?(code)
+    end
+  end
 
   OAUTH_BASE = 'https://oauth.zaloapp.com/v4/oa'.freeze
   API_BASE = 'https://openapi.zalo.me'.freeze
@@ -93,7 +112,9 @@ class ZaloOa::Client
       raise Error, "request to #{url} failed with status #{response.code}" unless response.success?
 
       body = response.parsed_response
-      raise Error, "request to #{url} failed: #{body['error']} #{body['message']}" if body.is_a?(Hash) && body['error'].to_i != 0
+      if body.is_a?(Hash) && body['error'].to_i != 0
+        raise Error.new("request to #{url} failed: #{body['error']} #{body['message']}", code: body['error'].to_i)
+      end
 
       body
     end
