@@ -32,10 +32,16 @@ loki.source.docker "containers" {
 }
 
 loki.process "logs" {
-  // Dòng log lograge là JSON thuần có field "status" và "method"
+  // Rails ghi: `I, [ts #1] INFO -- : [uuid] {"method":...,"status":200,...}` (JSON lograge có tiền tố logger).
+  // Trích phần JSON, lấy status làm label + request_id làm structured metadata, rồi lưu dòng là JSON thuần
+  // (để LogQL `| json` ở dashboard hoạt động).
   stage.match {
-    selector = "{service=\"rails\"} |~ \"^\\\\{.*\\\"status\\\"\""
+    selector = "{service=\"rails\"} |~ \"\\\\{\\\"method\\\".*\\\"status\\\"\""
+    stage.regex {
+      expression = "(?P<lograge>\\{\"method\".*\\})\\s*$"
+    }
     stage.json {
+      source      = "lograge"
       expressions = { status = "status", request_id = "request_id" }
     }
     stage.labels {
@@ -43,6 +49,9 @@ loki.process "logs" {
     }
     stage.structured_metadata {
       values = { request_id = "" }
+    }
+    stage.output {
+      source = "lograge"
     }
   }
   forward_to = [loki.write.default.receiver]
