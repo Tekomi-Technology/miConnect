@@ -1,6 +1,17 @@
 class ZaloOa::BackfillJob < MutexApplicationJob
   queue_as :low
   retry_on LockAcquisitionError, wait: 10.seconds, attempts: 6
+  # Transient failures (network, Zalo 5xx, rate limit): a few backed-off retries, then give up quietly.
+  # BackfillAllJob re-enqueues every channel every 5 minutes, so a dropped run is recovered by the next one
+  # and must not pile up in the Sidekiq dead set.
+  retry_on ZaloOa::Client::Error, SocketError, Net::OpenTimeout, Net::ReadTimeout, Errno::ECONNREFUSED,
+           wait: :polynomially_longer, attempts: 3 do |job, error|
+    Rails.logger.warn("Zalo OA history backfill gave up for channel #{job.arguments.first}: #{error.class} #{error.message}")
+  end
+
+  # Zalo rejects the call until the OA owner acts (e.g. -224 needs a higher OA tier package), so skip
+  # this channel for a while instead of calling Zalo and failing every 5 minutes.
+  BLOCKED_TTL = 6.hours
 
   MAX_CONVERSATIONS = 50
   MAX_MESSAGES_PER_CONVERSATION = 100
@@ -9,14 +20,30 @@ class ZaloOa::BackfillJob < MutexApplicationJob
   def perform(channel_id)
     channel = Channel::ZaloOa.find_by(id: channel_id)
     return if channel.blank? || channel.inbox.blank?
+    return if blocked?(channel)
 
     with_lock("zalo_oa:backfill:#{channel.id}", 5.minutes) { backfill(channel) }
   rescue ZaloOa::Client::Error => e
-    Rails.logger.error("Zalo OA history backfill failed for channel #{channel_id}: #{e.message}")
-    raise
+    raise unless e.permanent?
+
+    block!(channel_id, e)
   end
 
   private
+
+  def blocked_key(channel_id)
+    format(::Redis::Alfred::ZALO_OA_BACKFILL_BLOCKED, channel_id: channel_id)
+  end
+
+  def blocked?(channel)
+    ::Redis::Alfred.get(blocked_key(channel.id)).present?
+  end
+
+  def block!(channel_id, error)
+    ::Redis::Alfred.setex(blocked_key(channel_id), error.code.to_s, BLOCKED_TTL)
+    Rails.logger.warn("Zalo OA history backfill paused #{BLOCKED_TTL.inspect} for channel #{channel_id}, " \
+                      "Zalo error #{error.code} (#{ZaloOa::Client::PERMANENT_ERROR_CODES[error.code]}): #{error.message}")
+  end
 
   def backfill(channel)
     access_token = channel.valid_access_token
