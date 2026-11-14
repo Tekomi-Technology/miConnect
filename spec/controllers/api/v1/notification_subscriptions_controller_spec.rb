@@ -36,6 +36,46 @@ RSpec.describe 'Notifications Subscriptions API', type: :request do
         expect(json_response['subscription_attributes']['auth']).to eq('test')
       end
 
+      it 'accepts an apns_voip subscription without overwriting the fcm subscription of the same device' do
+        fcm = create(:notification_subscription, user: agent, subscription_type: 'fcm', identifier: 'device-1',
+                                                 subscription_attributes: { 'push_token' => 'fcm-token', 'device_id' => 'device-1' })
+
+        post '/api/v1/notification_subscriptions',
+             params: {
+               notification_subscription: {
+                 subscription_type: 'apns_voip',
+                 subscription_attributes: { devicePlatform: 'iOS', push_token: 'voip-token', device_id: 'device-1' }
+               }
+             },
+             headers: agent.create_new_auth_token,
+             as: :json
+
+        expect(response).to have_http_status(:success)
+        json_response = response.parsed_body
+        expect(json_response['subscription_type']).to eq('apns_voip')
+        expect(json_response['id']).not_to eq(fcm.id)
+        expect(fcm.reload.subscription_type).to eq('fcm')
+        expect(fcm.subscription_attributes['push_token']).to eq('fcm-token')
+      end
+
+      it 'updates the same apns_voip subscription when the device registers again' do
+        2.times do |i|
+          post '/api/v1/notification_subscriptions',
+               params: {
+                 notification_subscription: {
+                   subscription_type: 'apns_voip',
+                   subscription_attributes: { devicePlatform: 'iOS', push_token: "voip-token-#{i}", device_id: 'device-2' }
+                 }
+               },
+               headers: agent.create_new_auth_token,
+               as: :json
+          expect(response).to have_http_status(:success)
+        end
+
+        expect(agent.notification_subscriptions.where(subscription_type: 'apns_voip').count).to eq(1)
+        expect(agent.notification_subscriptions.apns_voip.first.subscription_attributes['push_token']).to eq('voip-token-1')
+      end
+
       it 'returns existing notification subscription if subscription exists' do
         subscription = create(:notification_subscription, user: agent)
         post '/api/v1/notification_subscriptions',
