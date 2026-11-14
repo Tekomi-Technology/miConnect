@@ -335,7 +335,7 @@
    },
    "targets": [
     {
-     "expr": "redis_key_size{key=~\"queue:.*\"}",
+     "expr": "redis_key_size{key=~\"queue:.*\"} or label_replace(vector(0), \"key\", \"không có job chờ\", \"\", \"\")",
      "editorMode": "code",
      "legendFormat": "{{key}}",
      "refId": "A",
