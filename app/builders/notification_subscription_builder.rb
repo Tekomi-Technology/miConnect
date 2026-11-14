@@ -13,6 +13,9 @@ class NotificationSubscriptionBuilder
   def identifier
     @identifier ||= params[:subscription_attributes][:endpoint] if params[:subscription_type] == 'browser_push'
     @identifier ||= params[:subscription_attributes][:device_id] if params[:subscription_type] == 'fcm'
+    # The VoIP token shares device_id with the FCM subscription of the same device. Namespace the
+    # identifier so the two records never collide on the unique identifier index.
+    @identifier ||= "apns_voip:#{params[:subscription_attributes][:device_id]}" if params[:subscription_type] == 'apns_voip'
     @identifier
   end
 
