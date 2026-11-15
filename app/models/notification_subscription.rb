@@ -22,7 +22,10 @@ class NotificationSubscription < ApplicationRecord
 
   SUBSCRIPTION_TYPES = {
     browser_push: 1,
-    fcm: 2
+    fcm: 2,
+    # iOS PushKit (VoIP) token registered by the mobile app. Stored only; regular push
+    # delivery ignores it (send_fcm_push / send_browser_push guard on subscription type).
+    apns_voip: 3
   }.freeze
 
   enum subscription_type: SUBSCRIPTION_TYPES
