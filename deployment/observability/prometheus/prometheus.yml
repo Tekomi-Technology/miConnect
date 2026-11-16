@@ -17,5 +17,18 @@ scrape_configs:
     static_configs: [{ targets: ["alloy:12345"] }]
   - job_name: grafana
     static_configs: [{ targets: ["grafana:3000"] }]
+  # Giám sát từ bên ngoài: VPS này kiểm tra dịch vụ của VPS PBX (không cần VPS thứ 3).
+  - job_name: blackbox-http
+    metrics_path: /probe
+    params: {module: [http_2xx]}
+    static_configs: [{targets: ['https://td1.tekomi.vn/']}]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115
+  # Giám sát từ bên ngoài: VPS này kiểm tra dịch vụ của VPS PBX (không cần VPS thứ 3).
   # Chatwoot/Sidekiq hiện KHÔNG có endpoint /metrics (không có gem prometheus/yabeda).
   # Số liệu Sidekiq lấy qua redis-exporter (độ dài queue), request/lỗi lấy từ log (lograge).

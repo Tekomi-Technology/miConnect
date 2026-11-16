@@ -450,3 +450,47 @@ groups:
         datasource:
           type: __expr__
           uid: __expr__
+- orgId: 1
+  name: external
+  folder: Observability
+  interval: 1m
+  rules:
+  - uid: ext-pbx-down
+    title: PBX (td1.tekomi.vn) không truy cập được
+    condition: C
+    for: 3m
+    noDataState: OK
+    execErrState: Error
+    labels:
+      severity: critical
+    annotations:
+      summary: VPS Chatwoot không gọi được PBX td1.tekomi.vn (HTTPS) trong 3 phút
+    data:
+    - refId: A
+      relativeTimeRange: {from: 600, to: 0}
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: min(probe_success{job="blackbox-http"})
+        datasource: {uid: prometheus}
+        instant: true
+    - refId: B
+      datasourceUid: __expr__
+      relativeTimeRange: {from: 600, to: 0}
+      model:
+        type: reduce
+        expression: A
+        reducer: last
+        refId: B
+        settings: {mode: dropNN}
+        datasource: {type: __expr__, uid: __expr__}
+    - refId: C
+      datasourceUid: __expr__
+      relativeTimeRange: {from: 600, to: 0}
+      model:
+        type: threshold
+        expression: B
+        refId: C
+        conditions:
+        - evaluator: {type: lt, params: [1]}
+        datasource: {type: __expr__, uid: __expr__}

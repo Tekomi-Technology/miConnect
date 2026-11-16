@@ -103,6 +103,16 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on: [loki]
 
+  blackbox:
+    image: prom/blackbox-exporter:v0.26.0
+    restart: unless-stopped
+    mem_limit: 32m
+    cpus: 0.2
+    logging: *logging
+    command: ["--config.file=/etc/blackbox/blackbox.yml"]
+    volumes:
+      - ./blackbox/blackbox.yml:/etc/blackbox/blackbox.yml:ro
+
   node-exporter:
     image: prom/node-exporter:v1.9.0
     restart: unless-stopped
