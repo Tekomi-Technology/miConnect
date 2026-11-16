@@ -1,0 +1,64 @@
+// Thu log mọi container docker, gắn label service/container/project,
+// parse JSON lograge (rails) để lấy status làm label + request_id làm structured metadata.
+
+discovery.docker "containers" {
+  host             = "unix:///var/run/docker.sock"
+  refresh_interval = "15s"
+}
+
+discovery.relabel "containers" {
+  targets = discovery.docker.containers.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    target_label  = "service"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
+    target_label  = "project"
+  }
+}
+
+loki.source.docker "containers" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.containers.output
+  forward_to = [loki.process.logs.receiver]
+  refresh_interval = "15s"
+}
+
+loki.process "logs" {
+  // Rails ghi: `I, [ts #1] INFO -- : [uuid] {"method":...,"status":200,...}` (JSON lograge có tiền tố logger).
+  // Trích phần JSON, lấy status làm label + request_id làm structured metadata, rồi lưu dòng là JSON thuần
+  // (để LogQL `| json` ở dashboard hoạt động).
+  stage.match {
+    selector = "{service=\"rails\"} |~ \"\\\\{\\\"method\\\".*\\\"status\\\"\""
+    stage.regex {
+      expression = "(?P<lograge>\\{\"method\".*\\})\\s*$"
+    }
+    stage.json {
+      source      = "lograge"
+      expressions = { status = "status", request_id = "request_id" }
+    }
+    stage.labels {
+      values = { status = "" }
+    }
+    stage.structured_metadata {
+      values = { request_id = "" }
+    }
+    stage.output {
+      source = "lograge"
+    }
+  }
+  forward_to = [loki.write.default.receiver]
+}
+
+loki.write "default" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

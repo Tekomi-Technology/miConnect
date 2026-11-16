@@ -1,0 +1,452 @@
+apiVersion: 1
+groups:
+- orgId: 1
+  name: infra
+  folder: Observability
+  interval: 1m
+  rules:
+  - uid: obs-container-down
+    title: Container không chạy
+    condition: C
+    for: 2m
+    noDataState: OK
+    execErrState: Error
+    labels:
+      severity: critical
+    annotations:
+      summary: Container {{ .Labels.name }} không còn được thấy > 2 phút
+      description: cAdvisor không thấy container {{ .Labels.name }}.
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: time() - container_last_seen{name=~"chatwoot-.*|anbinh-.*"}
+        datasource:
+          uid: prometheus
+        instant: true
+    - refId: B
+      datasourceUid: __expr__
+      relativeTimeRange:
+        from: 600
+        to: 0
+      model:
+        type: reduce
+        expression: A
+        reducer: last
+        refId: B
+        settings:
+          mode: dropNN
+        datasource:
+          type: __expr__
+          uid: __expr__
+    - refId: C
+      datasourceUid: __expr__
+      relativeTimeRange:
+        from: 600
+        to: 0
+      model:
+        type: threshold
+        expression: B
+        refId: C
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 120
+        datasource:
+          type: __expr__
+          uid: __expr__
+  - uid: obs-container-restart
+    title: Container restart
+    condition: C
+    for: 0s
+    noDataState: OK
+    execErrState: Error
+    labels:
+      severity: warning
+    annotations:
+      summary: Container {{ .Labels.name }} vừa restart
+      description: Start time của container thay đổi trong 15 phút gần nhất.
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 900
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: changes(container_start_time_seconds{name=~"chatwoot-.*|anbinh-.*"}[15m])
+        datasource:
+          uid: prometheus
+        instant: true
+    - refId: B
+      datasourceUid: __expr__
+      relativeTimeRange:
+        from: 900
+        to: 0
+      model:
+        type: reduce
+        expression: A
+        reducer: last
+        refId: B
+        settings:
+          mode: dropNN
+        datasource:
+          type: __expr__
+          uid: __expr__
+    - refId: C
+      datasourceUid: __expr__
+      relativeTimeRange:
+        from: 900
+        to: 0
+      model:
+        type: threshold
+        expression: B
+        refId: C
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+  - uid: obs-target-down
+    title: Target giám sát down
+    condition: C
+    for: 3m
+    noDataState: OK
+    execErrState: Error
+    labels:
+      severity: warning
+    annotations:
+      summary: Target {{ .Labels.job }} không scrape được
+      description: Prometheus không scrape được job {{ .Labels.job }} > 3 phút.
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: 1 - up
+        datasource:
+          uid: prometheus
+        instant: true
+    - refId: B
+      datasourceUid: __expr__
+      relativeTimeRange:
+        from: 600
+        to: 0
+      model:
+        type: reduce
+        expression: A
+        reducer: last
+        refId: B
+        settings:
+          mode: dropNN
+        datasource:
+          type: __expr__
+          uid: __expr__
+    - refId: C
+      datasourceUid: __expr__
+      relativeTimeRange:
+        from: 600
+        to: 0
+      model:
+        type: threshold
+        expression: B
+        refId: C
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+  - uid: obs-disk-high
+    title: Đĩa gần đầy (>85%)
+    condition: C
+    for: 5m
+    noDataState: OK
+    execErrState: Error
+    labels:
+      severity: critical
+    annotations:
+      summary: Đĩa / dùng trên 85%
+      description: Dung lượng đĩa gốc vượt 85%.
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: 100 - (node_filesystem_avail_bytes{mountpoint="/",fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{mountpoint="/",fstype!~"tmpfs|overlay"} * 100)
+        datasource:
+          uid: prometheus
+        instant: true
+    - refId: B
+      datasourceUid: __expr__
+      relativeTimeRange:
+        from: 600
+        to: 0
+      model:
+        type: reduce
+        expression: A
+        reducer: last
+        refId: B
+        settings:
+          mode: dropNN
+        datasource:
+          type: __expr__
+          uid: __expr__
+    - refId: C
+      datasourceUid: __expr__
+      relativeTimeRange:
+        from: 600
+        to: 0
+      model:
+        type: threshold
+        expression: B
+        refId: C
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 85
+        datasource:
+          type: __expr__
+          uid: __expr__
+  - uid: obs-ram-low
+    title: RAM available thấp (<10%)
+    condition: C
+    for: 5m
+    noDataState: OK
+    execErrState: Error
+    labels:
+      severity: warning
+    annotations:
+      summary: RAM available dưới 10%
+      description: MemAvailable dưới 10% tổng RAM.
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: 100 * node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes
+        datasource:
+          uid: prometheus
+        instant: true
+    - refId: B
+      datasourceUid: __expr__
+      relativeTimeRange:
+        from: 600
+        to: 0
+      model:
+        type: reduce
+        expression: A
+        reducer: last
+        refId: B
+        settings:
+          mode: dropNN
+        datasource:
+          type: __expr__
+          uid: __expr__
+    - refId: C
+      datasourceUid: __expr__
+      relativeTimeRange:
+        from: 600
+        to: 0
+      model:
+        type: threshold
+        expression: B
+        refId: C
+        conditions:
+        - evaluator:
+            type: lt
+            params:
+            - 10
+        datasource:
+          type: __expr__
+          uid: __expr__
+- orgId: 1
+  name: app
+  folder: Observability
+  interval: 1m
+  rules:
+  - uid: obs-5xx-high
+    title: Tăng lỗi 5xx (rails)
+    condition: C
+    for: 0s
+    noDataState: OK
+    execErrState: Error
+    labels:
+      severity: critical
+    annotations:
+      summary: Hơn 5 response 5xx trong 5 phút ở rails
+      description: Cần bật LOGRAGE_ENABLED=true để có log JSON; nếu chưa bật rule sẽ không có dữ liệu (NoData=OK).
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: loki
+      model:
+        refId: A
+        expr: sum(count_over_time({service="rails", status=~"5.."}[5m]))
+        datasource:
+          uid: loki
+        queryType: instant
+    - refId: B
+      datasourceUid: __expr__
+      relativeTimeRange:
+        from: 300
+        to: 0
+      model:
+        type: reduce
+        expression: A
+        reducer: last
+        refId: B
+        settings:
+          mode: dropNN
+        datasource:
+          type: __expr__
+          uid: __expr__
+    - refId: C
+      datasourceUid: __expr__
+      relativeTimeRange:
+        from: 300
+        to: 0
+      model:
+        type: threshold
+        expression: B
+        refId: C
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 5
+        datasource:
+          type: __expr__
+          uid: __expr__
+  - uid: obs-redis-down
+    title: Redis down
+    condition: C
+    for: 1m
+    noDataState: OK
+    execErrState: Error
+    labels:
+      severity: critical
+    annotations:
+      summary: Redis không phản hồi
+      description: redis_up = 0 trong 1 phút.
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: 1 - redis_up
+        datasource:
+          uid: prometheus
+        instant: true
+    - refId: B
+      datasourceUid: __expr__
+      relativeTimeRange:
+        from: 600
+        to: 0
+      model:
+        type: reduce
+        expression: A
+        reducer: last
+        refId: B
+        settings:
+          mode: dropNN
+        datasource:
+          type: __expr__
+          uid: __expr__
+    - refId: C
+      datasourceUid: __expr__
+      relativeTimeRange:
+        from: 600
+        to: 0
+      model:
+        type: threshold
+        expression: B
+        refId: C
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+  - uid: obs-sidekiq-backlog
+    title: Sidekiq queue tồn đọng
+    condition: C
+    for: 10m
+    noDataState: OK
+    execErrState: Error
+    labels:
+      severity: warning
+    annotations:
+      summary: Sidekiq có hơn 1000 job tồn trong queue > 10 phút
+      description: Tổng độ dài các queue Sidekiq > 1000.
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: sum(redis_key_size{key=~"queue:.*"}) or vector(0)
+        datasource:
+          uid: prometheus
+        instant: true
+    - refId: B
+      datasourceUid: __expr__
+      relativeTimeRange:
+        from: 600
+        to: 0
+      model:
+        type: reduce
+        expression: A
+        reducer: last
+        refId: B
+        settings:
+          mode: dropNN
+        datasource:
+          type: __expr__
+          uid: __expr__
+    - refId: C
+      datasourceUid: __expr__
+      relativeTimeRange:
+        from: 600
+        to: 0
+      model:
+        type: threshold
+        expression: B
+        refId: C
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 1000
+        datasource:
+          type: __expr__
+          uid: __expr__

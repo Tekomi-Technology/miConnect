@@ -11,6 +11,7 @@ if ActiveModel::Type::Boolean.new.cast(ENV.fetch('LOGRAGE_ENABLED', false)).pres
       {
         host: controller.request.host,
         remote_ip: controller.request.remote_ip,
+        request_id: controller.request.request_id,
         user_id: user_id
       }
     end
