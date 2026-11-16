@@ -8,7 +8,7 @@ contactPoints:
         disableResolveMessage: false
         settings:
           bottoken: $TELEGRAM_BOT_TOKEN
-          chatid: $TELEGRAM_CHAT_ID
+          chatid: $TELEGRAM_CHAT_ID  # LUU Y: chat id am (group) bi YAML doc thanh so -> ghi thang chuoi "-123..." vao file tren server
 policies:
   - orgId: 1
     receiver: telegram
