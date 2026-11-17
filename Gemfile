@@ -145,6 +145,8 @@ gem 'speedshop-cloudwatch', '~> 0.2.1', require: false
 ##-- Push notification service --##
 gem 'fcm'
 gem 'web-push', '>= 3.0.1'
+# HTTP/2 client for APNs (iOS PushKit VoIP pushes). Pinned: newer releases must be >= 2 weeks old.
+gem 'httpx', '1.9.0'
 
 ##-- geocoding / parse location from ip --##
 # http://www.rubygeocoder.com/

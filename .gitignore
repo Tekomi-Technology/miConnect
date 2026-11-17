@@ -123,3 +123,7 @@ graphify-out/*
 
 # Local docs
 /docs/
+
+# APNs signing key (secret)
+.apns-key/
+*.p8

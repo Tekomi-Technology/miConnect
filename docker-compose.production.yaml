@@ -12,6 +12,8 @@ services:
     volumes:
       - storage_data:/app/storage
       - ./config/environments/production.rb:/app/config/environments/production.rb:ro
+      # APNs .p8 key for iOS VoIP push (APNS_KEY_PATH=/run/secrets/apns/AuthKey_XXXX.p8). Keep the key out of git.
+      - ${APNS_KEY_HOST_PATH:-./.apns-key}:/run/secrets/apns:ro
 
   rails:
     <<: *base

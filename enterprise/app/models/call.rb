@@ -55,6 +55,9 @@ class Call < ApplicationRecord
 
   has_one_attached :recording
 
+  after_create_commit :push_incoming_to_mobile, if: -> { incoming? && ringing? }
+  after_update_commit :push_cancel_to_mobile, if: -> { incoming? && saved_change_to_status? && status_before_last_save == 'ringing' }
+
   validates :provider_call_id, presence: true
   validates :provider, presence: true
   validates :direction, presence: true
@@ -153,5 +156,16 @@ class Call < ApplicationRecord
       recording_url: recording_url,
       transcript: transcript
     }
+  end
+
+  private
+
+  # iOS PushKit wake-up (no-op until APNS_* is configured, see Voice::ApnsVoipClient).
+  def push_incoming_to_mobile
+    Voice::VoipPushJob.perform_later(id, 'incoming')
+  end
+
+  def push_cancel_to_mobile
+    Voice::VoipPushJob.perform_later(id, 'cancel')
   end
 end
