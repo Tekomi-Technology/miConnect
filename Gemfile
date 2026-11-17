@@ -206,6 +206,14 @@ gem 'cld3', '~> 3.7'
 # OpenTelemetry for LLM observability
 gem 'opentelemetry-sdk'
 gem 'opentelemetry-exporter-otlp'
+# Distributed tracing (Tempo): individual instrumentations only, loaded by config/initializers/opentelemetry.rb
+# when OTEL_EXPORTER_OTLP_ENDPOINT is set.
+gem 'opentelemetry-instrumentation-action_pack', require: false
+gem 'opentelemetry-instrumentation-net_http', require: false
+gem 'opentelemetry-instrumentation-pg', require: false
+gem 'opentelemetry-instrumentation-rack', require: false
+gem 'opentelemetry-instrumentation-redis', require: false
+gem 'opentelemetry-instrumentation-sidekiq', require: false
 
 gem 'shopify_api'
 

@@ -12,4 +12,28 @@ datasources:
     type: loki
     access: proxy
     url: http://loki:3100
-    jsonData: { maxLines: 1000 }
+    jsonData:
+      maxLines: 1000
+      # trace_id là structured metadata (Alloy trích từ JSON lograge) -> link sang trace trong Tempo.
+      derivedFields:
+        - name: trace_id
+          datasourceUid: tempo
+          matcherType: label
+          matcherRegex: trace_id
+          url: "$${__value.raw}"
+          urlDisplayLabel: Xem trace
+  - name: Tempo
+    uid: tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    jsonData:
+      tracesToLogsV2:
+        datasourceUid: loki
+        spanStartTimeShift: "-5m"
+        spanEndTimeShift: "5m"
+        filterByTraceID: false
+        filterBySpanID: false
+        customQuery: true
+        query: '{service=~"rails|sidekiq"} |= "$${__trace.traceId}"'
+      nodeGraph: { enabled: true }

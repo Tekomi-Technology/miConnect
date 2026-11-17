@@ -8,12 +8,21 @@ if ActiveModel::Type::Boolean.new.cast(ENV.fetch('LOGRAGE_ENABLED', false)).pres
       # We only need user_id for API requests
       # might error out for other controller - ref: https://github.com/chatwoot/chatwoot/issues/6922
       user_id = controller&.try(:current_user)&.id if controller.is_a?(Api::BaseController) && controller&.try(:current_user).is_a?(User)
-      {
+      payload = {
         host: controller.request.host,
         remote_ip: controller.request.remote_ip,
         request_id: controller.request.request_id,
         user_id: user_id
       }
+      # Link log line to its trace in Tempo (only when OpenTelemetry tracing is enabled and a span is active)
+      if defined?(OpenTelemetry::Trace)
+        ctx = OpenTelemetry::Trace.current_span.context
+        if ctx.valid?
+          payload[:trace_id] = ctx.hex_trace_id
+          payload[:span_id] = ctx.hex_span_id
+        end
+      end
+      payload
     end
 
     config.lograge.custom_options = lambda do |event|

@@ -43,3 +43,22 @@ Rule 5xx và panel HTTP status cần lograge: đặt `LOGRAGE_ENABLED=true` tron
 - Chatwoot/Sidekiq không có endpoint `/metrics`; số liệu Sidekiq lấy qua độ dài key Redis (`queue:*`, `retry`, `dead`, `schedule`).
 - cAdvisor cần bản >= v0.55 để nhận container khi Docker dùng containerd snapshotter.
 - Alloy mount `docker.sock` (read-only) để discovery và đọc log container.
+
+## Distributed tracing (Tempo + OpenTelemetry)
+Tempo (`grafana/tempo:2.7.2`, 1 container, `mem_limit` 160m, giữ trace 3 ngày, volume `tempo_data`) nhận OTLP gRPC `4317` / HTTP `4318`, không publish cổng ra host. Tempo gắn thêm vào network `CHATWOOT_NETWORK` với alias `tempo` nên rails/sidekiq (project compose khác) gọi được `http://tempo:4318`. Grafana có datasource `Tempo` (uid `tempo`): từ span nhảy sang log Loki (`tracesToLogs`), và từ dòng log lograge có `trace_id` bấm "Xem trace" (derived field; `trace_id` lưu dạng structured metadata, không phải label).
+
+Mặc định tracing TẮT hoàn toàn (initializer `config/initializers/opentelemetry.rb` không làm gì nếu thiếu `OTEL_EXPORTER_OTLP_ENDPOINT`). Cần build lại FULL image Chatwoot (có gem `opentelemetry-instrumentation-*` mới trong Gemfile.lock, VPS 2 vCPU build khoảng 47 phút) rồi mới bật.
+
+Bật tracing:
+1. Cập nhật stack observability: `docker compose -f docker-compose.observability.yml --env-file .env up -d tempo grafana alloy` (recreate Grafana để nạp datasource; recreate Alloy để nạp trích `trace_id`).
+2. Trong `docker-compose.production.yaml` của chatwoot, thêm vào `environment` của cả `rails` và `sidekiq`:
+```yaml
+OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4318
+OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+OTEL_TRACES_SAMPLER_ARG: "0.1"   # tỉ lệ lấy mẫu trace gốc, 0.1 = 10% (parent-based)
+```
+3. `docker compose -f docker-compose.production.yaml up -d rails sidekiq` với image mới. Service name trong Tempo: `chatwoot-rails`, `chatwoot-sidekiq`. Cần `LOGRAGE_ENABLED=true` để log có `trace_id`/`span_id`.
+
+Tắt: bỏ biến `OTEL_EXPORTER_OTLP_ENDPOINT` rồi recreate rails/sidekiq (không cần build lại).
+
+Chi phí RAM: Tempo tối đa 160m (thực tế thường 60-120m). Mỗi process Ruby chỉ tăng thêm vài MB (đo khi boot: ~234MB tắt vs ~230-239MB bật; SDK vốn đã được load sẵn trong image; thêm hàng đợi span tối đa 512); giảm bằng `OTEL_TRACES_SAMPLER_ARG` thấp hơn (ví dụ `0.05`). Instrumentation: rack, action_pack, pg, redis, net_http (gồm các call Zalo qua Faraday), sidekiq. Nếu Tempo down thì span bị bỏ (hàng đợi đầy), ứng dụng không bị chặn.
