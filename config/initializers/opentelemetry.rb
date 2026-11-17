@@ -40,4 +40,25 @@ if ENV['OTEL_EXPORTER_OTLP_ENDPOINT'].present?
   rescue StandardError, LoadError => e
     Rails.logger.error("OpenTelemetry tracing disabled: #{e.class} #{e.message}")
   end
+
+  # Plain-text Rails.logger lines (ActiveJob/Sidekiq "Performed ...", errors, ...) get a ` trace_id=<hex>` suffix while a
+  # span is active, so Alloy can store it as Loki structured metadata and Grafana can link the line to its trace.
+  # Lograge JSON lines already carry trace_id and are left untouched (Alloy parses them as JSON).
+  module TraceIdLogSuffix
+    def call(severity, timestamp, progname, msg)
+      line = super
+      return line if line.include?('"trace_id"')
+
+      ctx = OpenTelemetry::Trace.current_span.context
+      return line unless ctx.valid? && ctx.trace_flags.sampled?
+
+      line.sub(/\n\z/, " trace_id=#{ctx.hex_trace_id}\n")
+    rescue StandardError
+      line
+    end
+  end
+
+  Rails.application.config.after_initialize do
+    Rails.logger.formatter&.extend(TraceIdLogSuffix)
+  end
 end

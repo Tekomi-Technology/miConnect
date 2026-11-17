@@ -6,7 +6,7 @@ module OpentelemetryConfig
   class << self
     def tracer
       initialize! unless initialized?
-      OpenTelemetry.tracer_provider.tracer('chatwoot')
+      (@provider || OpenTelemetry.tracer_provider).tracer('chatwoot')
     end
 
     def initialized?
@@ -27,6 +27,7 @@ module OpentelemetryConfig
 
     def reset!
       @initialized = false
+      @provider = nil
     end
 
     private
@@ -83,12 +84,29 @@ module OpentelemetryConfig
     end
 
     def configure_opentelemetry
-      OpenTelemetry::SDK.configure do |c|
-        c.service_name = 'chatwoot'
-        exporter = OpenTelemetry::Exporter::OTLP::Exporter.new(**exporter_config)
-        c.add_span_processor(OpenTelemetry::SDK::Trace::Export::BatchSpanProcessor.new(exporter))
-        Rails.logger.info 'OpenTelemetry initialized and configured to export to Langfuse'
+      exporter = OpenTelemetry::Exporter::OTLP::Exporter.new(**exporter_config)
+      processor = OpenTelemetry::SDK::Trace::Export::BatchSpanProcessor.new(exporter)
+
+      if tempo_tracing_enabled?
+        # config/initializers/opentelemetry.rb already owns the global provider (Tempo). Configuring it again would
+        # replace it and ship every HTTP/DB span to Langfuse, so LLM spans get a private provider instead. ALWAYS_ON:
+        # the Tempo head sampler must not drop LLM generations.
+        @provider = OpenTelemetry::SDK::Trace::TracerProvider.new(
+          resource: OpenTelemetry::SDK::Resources::Resource.create('service.name' => 'chatwoot'),
+          sampler: OpenTelemetry::SDK::Trace::Samplers::ALWAYS_ON
+        )
+        @provider.add_span_processor(processor)
+      else
+        OpenTelemetry::SDK.configure do |c|
+          c.service_name = 'chatwoot'
+          c.add_span_processor(processor)
+        end
       end
+      Rails.logger.info 'OpenTelemetry initialized and configured to export to Langfuse'
+    end
+
+    def tempo_tracing_enabled?
+      ENV['OTEL_EXPORTER_OTLP_ENDPOINT'].present?
     end
   end
 end

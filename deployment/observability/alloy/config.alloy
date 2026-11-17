@@ -54,6 +54,17 @@ loki.process "logs" {
       source = "lograge"
     }
   }
+  // Dòng log text thường (ActiveJob/Sidekiq "Performed...", lỗi...) có đuôi ` trace_id=<hex>`:
+  // lấy làm structured metadata để Grafana link sang trace (không đổi nội dung dòng).
+  stage.match {
+    selector = "{service=~\"rails|sidekiq\"} |~ \" trace_id=[0-9a-f]{32}$\""
+    stage.regex {
+      expression = " trace_id=(?P<trace_id>[0-9a-f]{32})$"
+    }
+    stage.structured_metadata {
+      values = { trace_id = "" }
+    }
+  }
   forward_to = [loki.write.default.receiver]
 }
 

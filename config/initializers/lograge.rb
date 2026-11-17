@@ -17,7 +17,8 @@ if ActiveModel::Type::Boolean.new.cast(ENV.fetch('LOGRAGE_ENABLED', false)).pres
       # Link log line to its trace in Tempo (only when OpenTelemetry tracing is enabled and a span is active)
       if defined?(OpenTelemetry::Trace)
         ctx = OpenTelemetry::Trace.current_span.context
-        if ctx.valid?
+        # only sampled traces exist in Tempo; an id of a dropped trace would be a dead link in Grafana
+        if ctx.valid? && ctx.trace_flags.sampled?
           payload[:trace_id] = ctx.hex_trace_id
           payload[:span_id] = ctx.hex_span_id
         end
