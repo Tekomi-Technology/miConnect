@@ -643,6 +643,35 @@ GEM
       opentelemetry-common (~> 0.20)
       opentelemetry-sdk (~> 1.10)
       opentelemetry-semantic_conventions
+    opentelemetry-helpers-sql (0.4.0)
+      opentelemetry-api (~> 1.7)
+    opentelemetry-helpers-sql-processor (0.5.1)
+      opentelemetry-api (~> 1.0)
+      opentelemetry-common (~> 0.21)
+    opentelemetry-instrumentation-action_pack (0.18.1)
+      opentelemetry-instrumentation-rack (~> 0.29)
+    opentelemetry-instrumentation-base (0.27.0)
+      opentelemetry-api (~> 1.7)
+      opentelemetry-common (~> 0.21)
+      opentelemetry-logs-api (~> 0.6)
+      opentelemetry-metrics-api (~> 0.9)
+      opentelemetry-registry (~> 0.1)
+    opentelemetry-instrumentation-net_http (0.30.0)
+      opentelemetry-instrumentation-base (~> 0.25)
+    opentelemetry-instrumentation-pg (0.37.1)
+      opentelemetry-helpers-sql
+      opentelemetry-helpers-sql-processor (>= 0.5.1, < 1.0)
+      opentelemetry-instrumentation-base (~> 0.25)
+    opentelemetry-instrumentation-rack (0.31.2)
+      opentelemetry-instrumentation-base (~> 0.25)
+    opentelemetry-instrumentation-redis (0.29.0)
+      opentelemetry-instrumentation-base (~> 0.25)
+    opentelemetry-instrumentation-sidekiq (0.29.0)
+      opentelemetry-instrumentation-base (~> 0.25)
+    opentelemetry-logs-api (0.7.0)
+      opentelemetry-api (~> 1.0)
+    opentelemetry-metrics-api (0.10.0)
+      opentelemetry-api (~> 1.0)
     opentelemetry-registry (0.4.0)
       opentelemetry-api (~> 1.1)
     opentelemetry-sdk (1.10.0)
@@ -1131,6 +1160,12 @@ DEPENDENCIES
   omniauth-saml
   opensearch-ruby
   opentelemetry-exporter-otlp
+  opentelemetry-instrumentation-action_pack
+  opentelemetry-instrumentation-net_http
+  opentelemetry-instrumentation-pg
+  opentelemetry-instrumentation-rack
+  opentelemetry-instrumentation-redis
+  opentelemetry-instrumentation-sidekiq
   opentelemetry-sdk
   pg
   pg_search
