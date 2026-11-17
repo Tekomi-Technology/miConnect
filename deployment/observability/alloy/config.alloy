@@ -42,13 +42,13 @@ loki.process "logs" {
     }
     stage.json {
       source      = "lograge"
-      expressions = { status = "status", request_id = "request_id" }
+      expressions = { status = "status", request_id = "request_id", trace_id = "trace_id" }
     }
     stage.labels {
       values = { status = "" }
     }
     stage.structured_metadata {
-      values = { request_id = "" }
+      values = { request_id = "", trace_id = "" }
     }
     stage.output {
       source = "lograge"

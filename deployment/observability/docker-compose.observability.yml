@@ -33,7 +33,7 @@ services:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
-    depends_on: [loki, prometheus]
+    depends_on: [loki, prometheus, tempo]
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health | grep -q ok"]
       interval: 30s
@@ -81,6 +81,25 @@ services:
       interval: 30s
       timeout: 5s
       retries: 5
+
+  tempo:
+    image: grafana/tempo:2.7.2
+    restart: unless-stopped
+    mem_limit: 160m
+    cpus: 0.5
+    logging: *logging
+    command: ["-config.file=/etc/tempo/tempo.yml"]
+    environment:
+      GOMEMLIMIT: 130MiB
+    volumes:
+      - ./tempo/tempo.yml:/etc/tempo/tempo.yml:ro
+      - tempo_data:/var/tempo
+    # Rails/Sidekiq (project khác) gửi OTLP tới http://tempo:4318 qua network chatwoot (alias `tempo`).
+    # Không publish cổng ra host.
+    networks:
+      default:
+      chatwoot:
+        aliases: [tempo]
 
   alloy:
     image: grafana/alloy:v1.7.1
@@ -172,6 +191,7 @@ volumes:
   loki_data:
   prometheus_data:
   alloy_data:
+  tempo_data:
 
 networks:
   chatwoot:
