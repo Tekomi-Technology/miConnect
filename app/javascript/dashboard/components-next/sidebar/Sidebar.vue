@@ -912,7 +912,7 @@ const menuItems = computed(() => {
         </span>
         <span
           v-if="!isEffectivelyCollapsed"
-          class="min-w-0 text-base font-bold tracking-[0.06em] text-white uppercase truncate"
+          class="min-w-0 text-base font-bold text-white truncate"
         >
           {{ globalConfig.brandName || t('SIDEBAR_ITEMS.BRAND_NAME') }}
         </span>

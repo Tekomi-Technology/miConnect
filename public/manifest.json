@@ -1,6 +1,6 @@
 {
-  "name": "GMO Connect",
-  "short_name": "GMO Connect",
+  "name": "miConnect",
+  "short_name": "miConnect",
   "icons": [{
     "src": "\/android-icon-36x36.png",
     "sizes": "36x36",
@@ -39,6 +39,6 @@
    }],
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0B1F3A",
-  "theme_color": "#11B8C8"
+  "background_color": "#0B1F4D",
+  "theme_color": "#00A9BD"
 }

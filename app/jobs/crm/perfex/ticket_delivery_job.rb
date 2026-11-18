@@ -41,7 +41,7 @@ class Crm::Perfex::TicketDeliveryJob < ApplicationJob
   private
 
   def subject_for(contact)
-    prefix = "[#{GlobalConfigService.load('BRAND_NAME', 'GMO')} Chatbot]"
+    prefix = "[#{GlobalConfigService.load('BRAND_NAME', 'miConnect')} Chatbot]"
     company_name = contact.company&.name
     return "#{prefix} #{contact.name}" if company_name.blank?
 

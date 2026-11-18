@@ -37,7 +37,7 @@
       },
       "INTERFACE_SECTION": {
         "TITLE": "Giao diện",
-        "NOTE": "Tuỳ chỉnh diện mạo bảng điều khiển GMO của bạn.",
+        "NOTE": "Tuỳ chỉnh diện mạo bảng điều khiển miConnect của bạn.",
         "FONT_SIZE": {
           "TITLE": "Cỡ chữ",
           "NOTE": "Điều chỉnh cỡ chữ trên toàn bộ bảng điều khiển theo ý bạn.",
@@ -326,7 +326,7 @@
     "ACTIVE": "Có hiệu lực",
     "COMPANIES": "Doanh nghiệp",
     "ALL_COMPANIES": "Tất cả doanh nghiệp",
-    "TEKOMI": "GMO AI",
+    "TEKOMI": "Mi AI",
     "CALLS": "Cuộc gọi",
     "TEKOMI_ASSISTANTS": "Trợ lý",
     "TEKOMI_OVERVIEW": "Tổng quan",
@@ -423,7 +423,7 @@
     },
     "DOCS": "Đọc tài liệu",
     "SECURITY": "Bảo mật",
-    "TEKOMI_AI": "GMO AI",
+    "TEKOMI_AI": "Mi AI",
     "CONVERSATION_WORKFLOW": "Quy trình hội thoại",
     "CRM_DIRECTORY": "Danh bạ CRM",
     "DEALS": "Bán hàng",
@@ -546,10 +546,10 @@
     }
   },
   "TEKOMI_SETTINGS": {
-    "TITLE": "Cài đặt GMO AI",
-    "DESCRIPTION": "Cấu hình các mô hình AI và tính năng cho GMO AI. GMO AI tính phí theo tín dụng, mỗi thao tác của GMO AI sẽ trừ tín dụng tuỳ theo mô hình bạn chọn.",
-    "LOADING": "Đang tải cấu hình GMO AI...",
-    "LINK_TEXT": "Tìm hiểu thêm về tín dụng GMO AI",
+    "TITLE": "Cài đặt Mi AI",
+    "DESCRIPTION": "Cấu hình các mô hình AI và tính năng cho Mi AI. Mi AI tính phí theo tín dụng, mỗi thao tác của Mi AI sẽ trừ tín dụng tuỳ theo mô hình bạn chọn.",
+    "LOADING": "Đang tải cấu hình Mi AI...",
+    "LINK_TEXT": "Tìm hiểu thêm về tín dụng Mi AI",
     "TABS": {
       "SETUP": "Thiết lập",
       "MODELS": "Mô hình",
@@ -582,7 +582,7 @@
         "DESCRIPTION": "Mọi tính năng còn lại dùng nhà cung cấp và mô hình đặt ở mục ngay dưới."
       }
     },
-    "NOT_ENABLED": "GMO AI chưa được bật cho tài khoản của bạn. Vui lòng nâng cấp gói để dùng các tính năng GMO AI.",
+    "NOT_ENABLED": "Mi AI chưa được bật cho tài khoản của bạn. Vui lòng nâng cấp gói để dùng các tính năng Mi AI.",
     "MODEL_CONFIG": {
       "TITLE": "Cấu hình mô hình",
       "DESCRIPTION": "Chọn mô hình AI cho từng tính năng.",
@@ -648,7 +648,7 @@
     },
     "LLM_SERVICES": {
       "TITLE": "Dịch vụ AI khác",
-      "DESCRIPTION": "FireCrawl thu thập nội dung các website bạn thêm làm tài liệu cho GMO AI và các trang dùng khi khởi tạo. Không có khoá thì GMO AI dùng bộ thu thập đơn giản hơn."
+      "DESCRIPTION": "FireCrawl thu thập nội dung các website bạn thêm làm tài liệu cho Mi AI và các trang dùng khi khởi tạo. Không có khoá thì Mi AI dùng bộ thu thập đơn giản hơn."
     },
     "DEFAULT_MODEL": {
       "TITLE": "Mô hình mặc định",
@@ -756,8 +756,8 @@
       }
     },
     "API": {
-      "SUCCESS": "Đã cập nhật cài đặt GMO AI thành công.",
-      "ERROR": "Không cập nhật được cài đặt GMO AI. Vui lòng thử lại."
+      "SUCCESS": "Đã cập nhật cài đặt Mi AI thành công.",
+      "ERROR": "Không cập nhật được cài đặt Mi AI. Vui lòng thử lại."
     }
   },
   "BILLING_SETTINGS": {
@@ -787,12 +787,12 @@
       "BUTTON_TXT": "Đi tới cổng thanh toán"
     },
     "TEKOMI": {
-      "TITLE": "GMO AI",
-      "DESCRIPTION": "Quản lý mức sử dụng và tín dụng cho GMO AI.",
+      "TITLE": "Mi AI",
+      "DESCRIPTION": "Quản lý mức sử dụng và tín dụng cho Mi AI.",
       "BUTTON_TXT": "Mua thêm tín dụng",
       "DOCUMENTS": "Tài liệu",
       "RESPONSES": "Responses",
-      "UPGRADE": "GMO AI không có ở gói miễn phí, hãy nâng cấp ngay để dùng trợ lý, trợ thủ và nhiều tính năng khác.",
+      "UPGRADE": "Mi AI không có ở gói miễn phí, hãy nâng cấp ngay để dùng trợ lý, trợ thủ và nhiều tính năng khác.",
       "REFRESH_CREDITS": "Làm mới"
     },
     "CHAT_WITH_US": {
@@ -804,7 +804,7 @@
     "TOPUP": {
       "BUY_CREDITS": "Mua thêm tín dụng",
       "MODAL_TITLE": "Mua tín dụng AI",
-      "MODAL_DESCRIPTION": "Mua thêm tín dụng cho GMO AI.",
+      "MODAL_DESCRIPTION": "Mua thêm tín dụng cho Mi AI.",
       "CREDITS": "TÍN DỤNG",
       "ONE_TIME": "một lần",
       "POPULAR": "Phổ biến nhất",

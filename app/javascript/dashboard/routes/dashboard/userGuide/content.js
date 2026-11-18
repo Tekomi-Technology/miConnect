@@ -1,10 +1,10 @@
-// Nội dung trang Hướng dẫn sử dụng (bản GMO). Đây là nguồn duy nhất của hướng dẫn: sửa tại đây,
+// Nội dung trang Hướng dẫn sử dụng (bản miConnect). Đây là nguồn duy nhất của hướng dẫn: sửa tại đây,
 // bản Word/PDF gửi khách được xuất lại từ file này. Định dạng trong chuỗi: **đậm**, *nghiêng*, `mã`.
 import conversationFlow from 'assets/images/user-guide/conversation-flow.png';
 
 export default {
   intro:
-    'GMO Connect gom tin nhắn từ mọi kênh (Zalo OA, Facebook, website, email) về một màn hình chung để đội ngũ cùng trả lời khách hàng. Tài liệu này mô tả luồng làm việc cơ bản, không đi vào từng tính năng nhỏ.',
+    'miConnect gom tin nhắn từ mọi kênh (Zalo OA, Facebook, website, email) về một màn hình chung để đội ngũ cùng trả lời khách hàng. Tài liệu này mô tả luồng làm việc cơ bản, không đi vào từng tính năng nhỏ.',
   sections: [
     {
       id: 'overview',
@@ -12,7 +12,7 @@ export default {
       blocks: [
         {
           type: 'p',
-          text: 'Mỗi tin nhắn khách gửi đến đều trở thành một **hội thoại** trong hộp thư chung. Nhân viên (hoặc trợ lý AI) trả lời ngay trên GMO Connect, câu trả lời được gửi ngược về đúng kênh khách đang dùng.',
+          text: 'Mỗi tin nhắn khách gửi đến đều trở thành một **hội thoại** trong hộp thư chung. Nhân viên (hoặc trợ lý AI) trả lời ngay trên miConnect, câu trả lời được gửi ngược về đúng kênh khách đang dùng.',
         },
         {
           type: 'table',
@@ -40,7 +40,7 @@ export default {
             ],
             ['Nhãn', 'Thẻ phân loại hội thoại, ví dụ “khiếu nại”, “báo giá”'],
             [
-              'GMO AI',
+              'Mi AI',
               'Trợ lý AI tự trả lời khách dựa trên tài liệu và câu hỏi thường gặp của doanh nghiệp; chuyển cho nhân viên khi cần người thật',
             ],
           ],
@@ -219,7 +219,7 @@ export default {
           items: [
             '**Quản lý nhân sự** — khi có người vào hoặc nghỉ: mời hoặc xóa nhân viên, đổi vai trò, cập nhật nhóm và hộp thư được giao (Cài Đặt → Nhân viên, Nhóm, Hộp thư).',
             '**Kiểm tra kết nối kênh** — khi khách báo đã nhắn mà không thấy tin, vào Cài Đặt → Hộp thư kiểm tra kênh đó và kết nối lại nếu bị ngắt (ví dụ trang Facebook đổi người quản trị).',
-            '**Cập nhật kiến thức cho GMO AI** — khi có sản phẩm, giá hay chính sách mới: bổ sung *Tài liệu*, *Câu hỏi thường gặp*, rồi thử lại trong *Khu thử nghiệm*.',
+            '**Cập nhật kiến thức cho Mi AI** — khi có sản phẩm, giá hay chính sách mới: bổ sung *Tài liệu*, *Câu hỏi thường gặp*, rồi thử lại trong *Khu thử nghiệm*.',
             '**Duy trì công cụ làm việc** — thêm nhãn, thư mẫu phản hồi và quy tắc tự động hoá khi đội gặp câu hỏi lặp lại hoặc cần cách phân loại mới.',
             '**Theo dõi như giám sát viên** — xem Giám sát nhóm và Báo cáo. Chỉ quản trị viên mới xóa được hội thoại và nhập hoặc xóa liên hệ hàng loạt.',
           ],
@@ -240,7 +240,7 @@ export default {
         },
         {
           type: 'p',
-          text: '**Trợ lý AI** (menu *GMO AI*) — trả lời khách thay nhân viên dựa trên kiến thức doanh nghiệp cung cấp. Quản trị viên thiết lập theo thứ tự:',
+          text: '**Trợ lý AI** (menu *Mi AI*) — trả lời khách thay nhân viên dựa trên kiến thức doanh nghiệp cung cấp. Quản trị viên thiết lập theo thứ tự:',
         },
         {
           type: 'ol',

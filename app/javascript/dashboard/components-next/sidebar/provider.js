@@ -5,7 +5,7 @@ import { useUISettings } from 'dashboard/composables/useUISettings';
 
 const SidebarControl = Symbol('SidebarControl');
 
-// Wide enough for the brand mark plus the full "GMO CONNECT" name and tagline
+// Wide enough for the brand mark plus the full "miConnect" name and tagline
 // to sit on one row without truncating at the default expanded width.
 const DEFAULT_WIDTH = 260;
 const MIN_WIDTH = 56;
