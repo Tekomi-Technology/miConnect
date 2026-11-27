@@ -22,8 +22,9 @@ services:
       - redis
       - call-emotion
       - rag
-    # Only reachable from the VPS itself. Public traffic comes in through the
-    # cloudflared service below; Docker-published ports bypass ufw.
+    # Only reachable from the VPS itself. Public traffic comes in through
+    # Cloudflare (proxy) -> host Nginx on :28443 -> here. See deployment/vps/.
+    # Never publish without 127.0.0.1: Docker-published ports bypass ufw.
     ports:
       - '127.0.0.1:5679:4000'
     environment:
@@ -110,17 +111,6 @@ services:
       - RAG_VOCAB_PATH=/data/vocabulary.sqlite3
     volumes:
       - rag_data:/data
-    restart: always
-
-  # Cloudflare Tunnel: serves https://miconnect.vn without opening any inbound
-  # port on the VPS. Public hostname in Cloudflare points to http://rails:4000.
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    command: tunnel --no-autoupdate run
-    environment:
-      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
-    depends_on:
-      - rails
     restart: always
 
 volumes:
