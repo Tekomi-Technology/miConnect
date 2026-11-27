@@ -26,7 +26,10 @@ v4_count=$(grep -Ec '^[0-9]' "$tmp/v4"); v6_count=$(grep -Ec '^[0-9a-f]' "$tmp/v
 [ "$v4_count" -ge 5 ] && [ "$v6_count" -ge 3 ] || { echo "Suspiciously short list" >&2; exit 1; }
 
 # 1) Remove previous rules carrying our tag (highest number first).
-ufw status numbered | grep -F "# ${TAG}" | sed -E 's/^\[ *([0-9]+)\].*/\1/' | sort -rn | while read -r n; do
+#    "|| true": on the first run there are no tagged rules, grep exits 1 and
+#    pipefail would otherwise abort the script silently.
+old_rules="$(ufw status numbered | grep -F "# ${TAG}" | sed -E 's/^\[ *([0-9]+)\].*/\1/' | sort -rn || true)"
+for n in $old_rules; do
   ufw --force delete "$n" >/dev/null
 done
 
