@@ -23,10 +23,10 @@ services:
       - call-emotion
       - rag
     # Only reachable from the VPS itself. Public traffic comes in through
-    # Cloudflare (proxy) -> host Nginx on :28443 -> here. See deployment/vps/.
+    # Cloudflare (proxy) -> host Nginx on :5679 -> here. See deployment/vps/.
     # Never publish without 127.0.0.1: Docker-published ports bypass ufw.
     ports:
-      - '127.0.0.1:5679:4000'
+      - '127.0.0.1:5680:4000'
     environment:
       - NODE_ENV=production
       - RAILS_ENV=production

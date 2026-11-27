@@ -7,7 +7,7 @@
 # Suggested cron (weekly):     0 4 * * 1 /root/miConnect/deployment/vps/cloudflare-firewall.sh >/var/log/cloudflare-firewall.log 2>&1
 set -euo pipefail
 
-PORT="${1:-28443}"
+PORT="${1:-5679}"
 TAG="cloudflare-web-${PORT}"
 REALIP_CONF="/etc/nginx/conf.d/cloudflare-realip.conf"
 
